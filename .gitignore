@@ -3,3 +3,11 @@ syllabus_it.md
 .DS_Store
 syllabus.pdf
 syllabus_it.pdf
+
+# Claude Code
+CLAUDE.md
+.claude/
+
+# Rasa assistant build/runtime artifacts (teaching scaffolds; students build their own)
+.rasa/
+models/

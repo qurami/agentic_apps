@@ -1,0 +1,26 @@
+version: "3.1"
+
+slots:
+  account_type:
+    type: categorical
+    values:
+      - checking
+      - savings
+    mappings:
+      - type: from_llm
+  current_balance:
+    type: float
+    mappings:
+      - type: controlled
+
+responses:
+  utter_ask_account_type:
+    - text: "Which account would you like to check?"
+      buttons:
+        - title: "Checking"
+          payload: "/SetSlots(account_type=checking)"
+        - title: "Savings"
+          payload: "/SetSlots(account_type=savings)"
+
+  utter_current_balance:
+    - text: "Your {account_type} account balance is €{current_balance}."

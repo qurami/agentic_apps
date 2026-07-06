@@ -1,0 +1,54 @@
+version: "3.1"
+
+slots:
+  branch_city:
+    type: text
+    mappings:
+      - type: from_llm
+  appointment_topic:
+    type: categorical
+    values:
+      - mortgage
+      - investments
+      - account services
+    mappings:
+      - type: from_llm
+  preferred_time:
+    type: text
+    mappings:
+      - type: from_llm
+  appointment_confirmed:
+    type: bool
+    mappings:
+      - type: from_llm
+
+responses:
+  utter_ask_branch_city:
+    - text: "In which city would you like the appointment?"
+
+  utter_ask_appointment_topic:
+    - text: "What is the appointment about?"
+      buttons:
+        - title: "Mortgage"
+          payload: "/SetSlots(appointment_topic=mortgage)"
+        - title: "Investments"
+          payload: "/SetSlots(appointment_topic=investments)"
+        - title: "Account services"
+          payload: "/SetSlots(appointment_topic=account services)"
+
+  utter_ask_preferred_time:
+    - text: "When would suit you best? Any day and time, in your own words."
+
+  utter_ask_appointment_confirmed:
+    - text: "Let me recap: an appointment at our {branch_city} branch, about {appointment_topic}, {preferred_time}. Shall I book it?"
+      buttons:
+        - title: "Yes, book it"
+          payload: "/SetSlots(appointment_confirmed=true)"
+        - title: "No, don't"
+          payload: "/SetSlots(appointment_confirmed=false)"
+
+  utter_appointment_booked:
+    - text: "Done — your appointment is booked. You'll receive a confirmation shortly."
+
+  utter_appointment_declined:
+    - text: "No problem — I've discarded the appointment request."

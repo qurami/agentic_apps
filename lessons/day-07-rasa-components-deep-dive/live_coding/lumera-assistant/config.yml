@@ -1,0 +1,13 @@
+recipe: default.v1
+language: en
+additional_languages:
+  - it
+assistant_id: humid-boundary
+pipeline:
+- name: CompactLLMCommandGenerator
+  llm:
+    model_group: openai_llm
+  flow_retrieval:
+    active: false
+policies:
+- name: FlowPolicy
