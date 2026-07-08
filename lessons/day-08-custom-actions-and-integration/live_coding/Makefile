@@ -10,7 +10,7 @@ export CORE_BANKING_TOKEN := test_token
 # One-time: create the two virtual environments.
 setup:
 	cd lumera-fastapi-server && uv venv --python 3.11 && uv pip install -r requirements.txt
-	cd lumera-assistant && uv venv --python 3.11 && uv pip install 'rasa-pro>=3.17' requests
+	cd lumera-assistant && uv venv --python 3.11 && uv pip install -r requirements.txt
 
 # Terminal 1 — the mock core-banking API on :8000
 run-fastapi-server:
