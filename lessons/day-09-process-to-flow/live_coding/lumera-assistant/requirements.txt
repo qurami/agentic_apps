@@ -1,0 +1,2 @@
+rasa-pro>=3.17
+requests

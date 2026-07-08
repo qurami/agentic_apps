@@ -1,0 +1,120 @@
+flows:
+  check_balance:
+    name: check account balance
+    description: Look up the current balance of one of the customer's Banca Lumera accounts.
+    steps:
+      - collect: account_type
+        description: "the account to check: checking or savings"
+      - action: action_fetch_balance
+        next:
+          - if: slots.balance_fetch_ok
+            then: show_balance
+          - else:
+              - action: utter_balance_service_down
+                next: END
+      - action: utter_current_balance
+        id: show_balance
+
+  book_appointment:
+    name: book a branch appointment
+    description: Book an in-person appointment at a Banca Lumera branch.
+    steps:
+      - collect: branch_city
+        description: the city of the branch where the customer wants the appointment
+      - collect: appointment_topic
+        description: "what the appointment is about: mortgage, investments, or account services"
+      - collect: preferred_time
+        description: the customer's preferred day and time, in their own words
+      - collect: appointment_confirmed
+        description: whether the customer confirms the recap of the appointment
+        next:
+          - if: slots.appointment_confirmed
+            then:
+              - action: action_confirm_appointment
+                next:
+                  - if: slots.booking_ok
+                    then:
+                      - action: utter_appointment_booked
+                        next: END
+                  - else:
+                      - action: utter_booking_failed
+                        next: END
+          - else:
+              - action: utter_appointment_declined
+                next: END
+
+  card_fees_info:
+    name: card fees information
+    description: Explain the yearly fees of Banca Lumera payment cards.
+    steps:
+      - collect: card_type
+        description: "the card the customer asks about: debit or credit"
+      - action: utter_card_fees
+      - action: utter_card_fee_table_link
+
+  download_statement:
+    name: download account statement
+    description: Send the customer a link to download the statement of one of their accounts.
+    steps:
+      - collect: account_type
+        description: "the account whose statement the customer wants: checking or savings"
+      - action: action_send_statement_link
+
+  transfer_money:
+    name: transfer money
+    description: Send a domestic SEPA transfer from the customer's checking account to another person.
+    steps:
+      - call: authenticate_user
+      - noop: true
+        next:
+          - if: not slots.authenticated
+            then:
+              - action: utter_auth_failed
+                next: END
+          - else: ask_recipient
+      - collect: recipient_name
+        id: ask_recipient
+        description: the full name of the person receiving the transfer
+      - collect: recipient_iban
+        description: the IBAN of the recipient's account
+        ask_before_filling: true
+      - collect: transfer_amount
+        description: the amount of the transfer, in euros
+      - collect: transfer_confirmed
+        description: whether the customer confirms the transfer recap
+        ask_before_filling: true
+        next:
+          - if: slots.transfer_confirmed
+            then:
+              - action: action_execute_transfer
+                next:
+                  - if: slots.transfer_ok
+                    then: transfer_done
+                  - else:
+                      - action: utter_transfer_failed
+                        next: END
+          - else:
+              - action: utter_transfer_declined
+                next: END
+      - action: utter_transfer_done
+        id: transfer_done
+      - collect: show_updated_balance
+        description: whether the customer wants to see their updated balance
+        ask_before_filling: true
+        next:
+          - if: slots.show_updated_balance
+            then:
+              - link: check_balance
+          - else:
+              - action: utter_transfer_wrap_up
+                next: END
+
+  authenticate_user:
+    if: False
+    name: verify customer identity
+    description: Verify the customer's identity with a one-time security code before a sensitive operation.
+    steps:
+      - collect: security_code
+        description: the one-time security code the customer provides
+        ask_before_filling: true
+      - action: action_verify_customer
