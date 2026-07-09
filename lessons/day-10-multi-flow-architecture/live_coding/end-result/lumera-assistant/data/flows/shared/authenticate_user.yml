@@ -1,0 +1,16 @@
+flows:
+  authenticate_user:
+    if: False
+    name: verify customer identity
+    description: Verify the customer's identity with a one-time security code before a sensitive operation.
+    steps:
+      - noop: true
+        next:
+          - if: slots.authenticated
+            then: END
+          - else: ask_code
+      - collect: security_code
+        id: ask_code
+        description: the one-time security code the customer provides
+        ask_before_filling: true
+      - action: action_verify_customer

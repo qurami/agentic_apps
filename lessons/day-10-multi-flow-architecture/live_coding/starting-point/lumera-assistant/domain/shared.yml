@@ -1,0 +1,5 @@
+version: "3.1"
+
+session_config:
+  session_expiration_time: 60  # minutes of inactivity before a new session starts
+  carry_over_slots_to_new_session: true

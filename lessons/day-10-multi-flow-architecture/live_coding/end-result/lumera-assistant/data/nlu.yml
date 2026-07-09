@@ -1,0 +1,26 @@
+nlu:
+- intent: check_balance
+  examples: |
+    - what's my balance
+    - show me my balance
+    - how much money do I have
+    - check my account balance
+    - what is my current balance
+    - how much is in my checking account
+    - how much is in my savings account
+    - balance please
+    - can you check my balance
+    - what's the balance on my account
+
+- intent: list_transactions
+  examples: |
+    - show me my recent transactions
+    - what are my latest transactions
+    - list my account movements
+    - what did I spend recently
+    - show the last movements on my account
+    - recent activity on my checking account
+    - what transactions went through my savings account
+    - show my transaction history
+    - list my recent payments
+    - what happened on my account lately

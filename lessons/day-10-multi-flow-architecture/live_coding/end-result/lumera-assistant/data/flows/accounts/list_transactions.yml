@@ -1,0 +1,18 @@
+flows:
+  list_transactions:
+    name: list recent transactions
+    description: >
+      List the most recent transactions on one of the customer's Banca Lumera
+      accounts. Does not show the current account balance.
+    steps:
+      - collect: account_type
+        description: "the account whose transactions to list: checking or savings"
+      - action: action_fetch_transactions
+        next:
+          - if: slots.transactions_fetch_ok
+            then: show_transactions
+          - else:
+              - action: utter_transactions_service_down
+                next: END
+      - action: utter_recent_transactions
+        id: show_transactions

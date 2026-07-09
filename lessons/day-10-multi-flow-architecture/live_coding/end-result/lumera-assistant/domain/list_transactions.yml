@@ -1,0 +1,21 @@
+version: "3.1"
+
+slots:
+  transactions_list:
+    type: text
+    mappings:
+      - type: controlled
+  transactions_fetch_ok:
+    type: bool
+    mappings:
+      - type: controlled
+
+responses:
+  utter_recent_transactions:
+    - text: "Here are the latest movements on your {account_type} account:\n{transactions_list}"
+
+  utter_transactions_service_down:
+    - text: "We're sorry, the transactions service is unavailable right now. Please try again later."
+
+actions:
+  - action_fetch_transactions

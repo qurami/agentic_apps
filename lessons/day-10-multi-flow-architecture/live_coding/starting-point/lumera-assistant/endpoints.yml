@@ -1,0 +1,18 @@
+# This file contains the different endpoints your bot can use.
+
+# Server which runs your custom actions.
+# https://rasa.com/docs/rasa-pro/concepts/custom-actions
+
+action_endpoint:
+  actions_module: "actions"
+
+# LLM providers and models, referenced by the components in config.yml.
+# The API key is read from the environment — it never lives in this file.
+
+model_groups:
+  - id: openai_llm
+    models:
+      - provider: openai
+        model: gpt-5.1-2025-11-13
+        reasoning_effort: "none"
+        timeout: 15

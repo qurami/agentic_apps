@@ -1,0 +1,72 @@
+version: "3.1"
+
+slots:
+  recipient_name:
+    type: text
+    mappings:
+      - type: from_llm
+  recipient_iban:
+    type: text
+    mappings:
+      - type: from_llm
+  transfer_amount:
+    type: float
+    mappings:
+      - type: from_llm
+  transfer_confirmed:
+    type: bool
+    mappings:
+      - type: from_llm
+  show_updated_balance:
+    type: bool
+    mappings:
+      - type: from_llm
+  transfer_ok:
+    type: bool
+    mappings:
+      - type: controlled
+  transfer_id:
+    type: text
+    mappings:
+      - type: controlled
+
+responses:
+  utter_ask_recipient_name:
+    - text: "Who is the recipient of the transfer?"
+
+  utter_ask_recipient_iban:
+    - text: "What is the recipient's IBAN?"
+
+  utter_ask_transfer_amount:
+    - text: "How much would you like to transfer, in euros?"
+
+  utter_ask_transfer_confirmed:
+    - text: "Please confirm: transfer €{transfer_amount} to {recipient_name}, IBAN {recipient_iban}. Shall I proceed?"
+      buttons:
+        - title: "Yes, transfer"
+          payload: "/SetSlots(transfer_confirmed=true)"
+        - title: "No, cancel"
+          payload: "/SetSlots(transfer_confirmed=false)"
+
+  utter_transfer_done:
+    - text: "Done — €{transfer_amount} is on its way to {recipient_name}. Your reference is {transfer_id}."
+
+  utter_transfer_failed:
+    - text: "I couldn't reach the transfer system, so no money has moved. Please try again later."
+
+  utter_transfer_declined:
+    - text: "Understood — I've cancelled the transfer. No money has moved."
+
+  utter_ask_show_updated_balance:
+    - text: "Would you like to see your updated balance?"
+      buttons:
+        - title: "Yes, show it"
+          payload: "/SetSlots(show_updated_balance=true)"
+        - title: "No, thanks"
+          payload: "/SetSlots(show_updated_balance=false)"
+
+  utter_transfer_wrap_up:
+    - text: "Alright — your transfer is on its way."
+
+actions:
+  - action_execute_transfer
