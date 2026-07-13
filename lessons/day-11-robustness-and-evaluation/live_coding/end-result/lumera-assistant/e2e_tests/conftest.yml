@@ -1,0 +1,6 @@
+# Fixtures visible to every test file under e2e_tests/.
+# Slots listed here are pre-set right after session start, so test cases
+# for sensitive flows can bypass the security-code challenge.
+fixtures:
+  - authenticated_user:
+      - authenticated: true

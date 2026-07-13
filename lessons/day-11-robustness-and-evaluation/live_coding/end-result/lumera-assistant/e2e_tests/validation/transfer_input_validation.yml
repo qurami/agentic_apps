@@ -1,0 +1,58 @@
+# The two YAML validation layers, each rejected once and then accepted.
+# The layer-3 validate_transfer_amount action is stubbed empty here
+# ("validation passes") — its insufficient-funds catch needs the
+# core-banking API up, so it is exercised live against the mock instead.
+stub_custom_actions:
+  validate_transfer_amount:
+    events: []
+    responses: []
+
+test_cases:
+  - test_case: garbage_iban_is_rejected_then_valid_iban_accepted
+    fixtures:
+      - authenticated_user
+    steps:
+      - user: I want to send money to Marco Bianchi
+        assertions:
+          - flow_started:
+              operator: all
+              flow_ids:
+                - transfer_money
+      - user: the IBAN is BANANA123
+        assertions:
+          - bot_uttered:
+              utter_name: utter_invalid_iban
+          - bot_uttered:
+              utter_name: utter_ask_recipient_iban
+          - slot_was_not_set:
+              - name: recipient_iban
+                value: BANANA123
+      - user: sorry, IT60X0542811101000000123456
+        assertions:
+          - slot_was_set:
+              - name: recipient_iban
+                value: IT60X0542811101000000123456
+
+  - test_case: amount_over_the_transfer_limit_is_rejected
+    fixtures:
+      - authenticated_user
+    steps:
+      - user: I want to send money to Marco Bianchi
+        assertions:
+          - flow_started:
+              operator: all
+              flow_ids:
+                - transfer_money
+      - user: IT60X0542811101000000123456
+        assertions:
+          - bot_uttered:
+              utter_name: utter_ask_transfer_amount
+      - user: "9000"
+        assertions:
+          - bot_uttered:
+              utter_name: utter_transfer_over_limit
+      - user: ok, 900 then
+        assertions:
+          - slot_was_set:
+              - name: transfer_amount
+                value: 900.0

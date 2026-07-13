@@ -1,0 +1,10 @@
+flows:
+  # Override of the shipped chitchat pattern: a flow with the reserved name
+  # replaces the default (which answers utter_cannot_handle). The free-form
+  # response only becomes generative once the rephraser is wired in
+  # endpoints.yml — without it, the static fallback text is served.
+  pattern_chitchat:
+    description: handle interactions with the user that are not task-oriented
+    name: pattern chitchat
+    steps:
+      - action: utter_free_chitchat_response

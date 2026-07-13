@@ -1,0 +1,17 @@
+recipe: default.v1
+language: en
+additional_languages:
+  - it
+assistant_id: humid-boundary
+pipeline:
+# Classic-NLU sidecar: tokenize, featurize and classify the intent, so the
+# NLUCommandAdapter can start nlu_trigger'd flows without an LLM call.
+- name: WhitespaceTokenizer
+- name: CountVectorsFeaturizer
+- name: LogisticRegressionClassifier
+- name: NLUCommandAdapter
+- name: CompactLLMCommandGenerator
+  llm:
+    model_group: openai_llm
+policies:
+- name: FlowPolicy

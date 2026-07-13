@@ -1,0 +1,8 @@
+flows:
+  download_statement:
+    name: download account statement
+    description: Send the customer a link to download the statement of one of their accounts.
+    steps:
+      - collect: account_type
+        description: "the account whose statement the customer wants: checking or savings"
+      - action: action_send_statement_link

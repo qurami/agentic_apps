@@ -1,0 +1,43 @@
+version: "3.1"
+
+slots:
+  card_type:
+    type: categorical
+    values:
+      - debit
+      - credit
+    mappings:
+      - type: from_llm
+
+responses:
+  utter_ask_card_type:
+    - text: "Which card are you interested in?"
+      buttons:
+        - title: "Debit card"
+          payload: "/SetSlots(card_type=debit)"
+        - title: "Credit card"
+          payload: "/SetSlots(card_type=credit)"
+
+  utter_card_fees:
+    - condition:
+        - type: slot
+          name: card_type
+          value: debit
+      text: "The Lumera debit card has no yearly fee — it comes free with every current account."
+      translation:
+        it: "La carta di debito Lumera non ha alcun canone annuo: è inclusa in ogni conto corrente."
+    - condition:
+        - type: slot
+          name: card_type
+          value: credit
+      text: "The Lumera credit card costs €45 per year, waived if you spend more than €6,000 in the year."
+      translation:
+        it: "La carta di credito Lumera costa 45 € l'anno, azzerati se spendi più di 6.000 € nell'anno."
+    - text: "Every Lumera card has its own fee schedule, listed in the full fee table."
+      translation:
+        it: "Ogni carta Lumera ha il proprio piano commissioni, riportato nella tabella completa."
+
+  utter_card_fee_table_link:
+    - text: "Full details for your card: https://banca-lumera.example/cards/{card_type}/fees"
+      translation:
+        it: "Tutti i dettagli per la tua carta: https://banca-lumera.example/cards/{card_type}/fees"

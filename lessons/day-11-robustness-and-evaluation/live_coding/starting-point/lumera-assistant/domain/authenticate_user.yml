@@ -1,0 +1,21 @@
+version: "3.1"
+
+slots:
+  security_code:
+    type: text
+    mappings:
+      - type: from_llm
+  authenticated:
+    type: bool
+    mappings:
+      - type: controlled
+
+responses:
+  utter_ask_security_code:
+    - text: "For your security, please enter your one-time code."
+
+  utter_auth_failed:
+    - text: "I couldn't verify your identity, so I can't proceed with this operation. If the problem persists, please contact your branch."
+
+actions:
+  - action_verify_customer

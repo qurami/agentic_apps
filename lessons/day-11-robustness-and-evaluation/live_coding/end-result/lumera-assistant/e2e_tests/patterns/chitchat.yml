@@ -1,0 +1,14 @@
+# The rephrased chitchat answer is generated fresh on every run, so this
+# case asserts the flow and response action — never the exact response text.
+# The action assertion also proves that our override replaced the default,
+# which executes utter_cannot_handle instead.
+test_cases:
+  - test_case: off_topic_message_goes_to_pattern_chitchat
+    steps:
+      - user: do you like pizza?
+        assertions:
+          - flow_started:
+              operator: all
+              flow_ids:
+                - pattern_chitchat
+          - action_executed: utter_free_chitchat_response

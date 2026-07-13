@@ -1,0 +1,40 @@
+version: "3.1"
+
+slots:
+  block_confirmed:
+    type: bool
+    mappings:
+      - type: from_llm
+  card_block_ok:
+    type: bool
+    mappings:
+      - type: controlled
+
+responses:
+  utter_ask_card_to_block:
+    - text: "Which card do you need to block?"
+      buttons:
+        - title: "Debit card"
+          payload: "/SetSlots(card_type=debit)"
+        - title: "Credit card"
+          payload: "/SetSlots(card_type=credit)"
+
+  utter_ask_block_confirmed:
+    - text: "I'm about to block your {card_type} card immediately — it can no longer be used after this. Shall I proceed?"
+      buttons:
+        - title: "Yes, block it"
+          payload: "/SetSlots(block_confirmed=true)"
+        - title: "No, don't"
+          payload: "/SetSlots(block_confirmed=false)"
+
+  utter_card_blocked:
+    - text: "Done — your {card_type} card is now blocked. If you also need a replacement, just ask."
+
+  utter_card_block_failed:
+    - text: "I couldn't reach the card system, so the card has NOT been blocked. Please call the emergency number on our website if this is urgent."
+
+  utter_card_block_declined:
+    - text: "Understood — your {card_type} card stays active."
+
+actions:
+  - action_block_card
