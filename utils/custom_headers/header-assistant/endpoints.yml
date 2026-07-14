@@ -1,0 +1,12 @@
+# Run custom actions in the Rasa process.
+action_endpoint:
+  actions_module: "actions"
+
+# Model used by config.yml. The API key comes from the environment.
+model_groups:
+  - id: openai_llm
+    models:
+      - provider: openai
+        model: gpt-5.1-2025-11-13
+        reasoning_effort: "none"
+        timeout: 15

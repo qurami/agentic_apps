@@ -1,0 +1,11 @@
+recipe: default.v1
+language: en
+assistant_id: header-demo
+pipeline:
+- name: CompactLLMCommandGenerator
+  llm:
+    model_group: openai_llm
+  flow_retrieval:
+    active: false
+policies:
+- name: FlowPolicy

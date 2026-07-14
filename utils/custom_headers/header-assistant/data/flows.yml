@@ -1,0 +1,18 @@
+flows:
+  show_session:
+    name: show session info
+    description: >
+      Tell the user which session information (the custom HTTP headers) the
+      client app sent along with their message. Use when the user asks who
+      they are, what session they are on, or what the app knows about them.
+    steps:
+      - action: action_show_session
+
+  streaming_demo:
+    name: streaming demo
+    description: >
+      Demonstrate token-by-token response streaming by narrating a short
+      explanation word by word. Use when the user asks to see the streaming
+      demo or how streaming works.
+    steps:
+      - action: action_streaming_demo

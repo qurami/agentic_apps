@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rasa custom-headers demo</title>
+<link rel="icon" href="data:,"><!-- Prevent a favicon 404. -->
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    font-family: -apple-system, "Segoe UI", sans-serif;
+    max-width: 640px; margin: 0 auto; padding: 16px;
+    display: flex; flex-direction: column; height: 100dvh; box-sizing: border-box;
+  }
+  header { display: flex; align-items: center; gap: 8px; }
+  h1 { font-size: 1.1rem; margin: 0; flex: 1; }
+  #status-dot { width: 10px; height: 10px; border-radius: 50%; background: #999; }
+  #status-dot.up { background: #2fbf71; }
+  #status-dot.down { background: #e0475b; }
+  #headers-panel {
+    font-family: ui-monospace, monospace; font-size: 0.75rem;
+    background: rgba(127,127,127,.12); border-radius: 8px;
+    padding: 8px 12px; margin: 10px 0; white-space: pre-wrap;
+  }
+  #chat { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 4px 0; }
+  .bubble { max-width: 85%; padding: 8px 12px; border-radius: 12px; line-height: 1.35; white-space: pre-wrap; }
+  .user { align-self: flex-end; background: #3b82f6; color: white; }
+  .bot  { align-self: flex-start; background: rgba(127,127,127,.18); }
+  form { display: flex; gap: 8px; margin-top: 10px; }
+  input[type=text] { flex: 1; padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(127,127,127,.4); font-size: 1rem; }
+  button { padding: 10px 16px; border-radius: 10px; border: none; background: #3b82f6; color: white; font-size: 1rem; cursor: pointer; }
+  label.stream { display: flex; align-items: center; gap: 4px; font-size: .85rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Rasa custom-headers demo</h1>
+  <span id="status-dot" title="Rasa server status"></span>
+</header>
+
+<!-- Displays the headers and sender ID used by this page. -->
+<div id="headers-panel"></div>
+
+<div id="chat"></div>
+
+<form id="composer">
+  <input id="message" type="text" placeholder='Try: "who am I?" or "show me the streaming demo"' autocomplete="off">
+  <label class="stream"><input id="stream-toggle" type="checkbox" checked> stream</label>
+  <button type="submit">Send</button>
+</form>
+
+<script>
+// Override the default Rasa URL with ?rasa=http://localhost:<port>.
+const RASA =
+  new URLSearchParams(location.search).get("rasa") || "http://localhost:5005";
+const WEBHOOK = RASA + "/webhooks/header_rest/webhook";
+
+// Example session headers. Cross-origin requests require Rasa's CORS option.
+const SESSION_HEADERS = {
+  "Content-Type": "application/json",
+  "X-Session-Id": "sess-" + Math.random().toString(36).slice(2, 10),
+  "X-Client-Channel": "web-demo",
+  "Authorization": "Bearer demo-token-not-a-real-secret",
+};
+
+// Use one conversation ID per page load.
+const SENDER_ID = "web-" + Math.random().toString(36).slice(2, 10);
+
+// DOM helpers
+const chat = document.getElementById("chat");
+
+function addBubble(role, text) {
+  const el = document.createElement("div");
+  el.className = "bubble " + role;
+  el.textContent = text;
+  chat.appendChild(el);
+  chat.scrollTop = chat.scrollHeight;
+  return el; // Streaming appends chunks to this element.
+}
+
+// Display request metadata, excluding Content-Type.
+document.getElementById("headers-panel").textContent =
+  "every request carries:\n" +
+  Object.entries(SESSION_HEADERS)
+    .filter(([k]) => k !== "Content-Type")
+    .map(([k, v]) => `${k}: ${v}`)
+    .join("\n") +
+  `\nsender (body): ${SENDER_ID}`;
+
+// Plain response: one JSON array containing all bot messages.
+async function sendPlain(text) {
+  const response = await fetch(WEBHOOK, {
+    method: "POST",
+    headers: SESSION_HEADERS,
+    body: JSON.stringify({ sender: SENDER_ID, message: text }),
+  });
+  const messages = await response.json();
+  for (const m of messages) {
+    addBubble("bot", m.text ?? JSON.stringify(m));
+  }
+}
+
+// Streaming response: newline-delimited JSON. Chunks have `"chunk": true`.
+async function sendStreaming(text) {
+  const response = await fetch(WEBHOOK + "?stream=true", {
+    method: "POST",
+    headers: SESSION_HEADERS,
+    body: JSON.stringify({ sender: SENDER_ID, message: text }),
+  });
+
+  // Read the response while Rasa is still writing it.
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+
+  let buffer = "";        // Incomplete JSON line.
+  let openBubble = null;  // Current streamed bot message.
+
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+
+    // Process complete lines and keep the unfinished tail.
+    const lines = buffer.split("\n");
+    buffer = lines.pop();
+
+    for (const line of lines) {
+      if (!line.trim()) continue;
+      const m = JSON.parse(line);
+      if (m.chunk) {
+        // Append chunks to one message.
+        if (!openBubble) openBubble = addBubble("bot", "");
+        openBubble.textContent += m.text;
+        chat.scrollTop = chat.scrollHeight;
+      } else {
+        // Add complete messages separately.
+        openBubble = null;
+        addBubble("bot", m.text ?? JSON.stringify(m));
+      }
+    }
+  }
+}
+
+// Message form
+document.getElementById("composer").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const input = document.getElementById("message");
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = "";
+  addBubble("user", text);
+
+  try {
+    if (document.getElementById("stream-toggle").checked) {
+      await sendStreaming(text);
+    } else {
+      await sendPlain(text);
+    }
+  } catch (err) {
+    addBubble("bot", "⚠ request failed: " + err.message + " — is `make run` up?");
+  }
+});
+
+// Poll the channel health route every five seconds.
+async function pingRasa() {
+  const dot = document.getElementById("status-dot");
+  try {
+    const r = await fetch(RASA + "/webhooks/header_rest/");
+    dot.className = r.ok ? "up" : "down";
+  } catch {
+    dot.className = "down";
+  }
+}
+pingRasa();
+setInterval(pingRasa, 5000);
+</script>
+</body>
+</html>
