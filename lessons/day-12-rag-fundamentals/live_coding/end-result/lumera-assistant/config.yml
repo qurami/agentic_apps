@@ -1,0 +1,39 @@
+recipe: default.v1
+language: en
+additional_languages:
+  - it
+assistant_id: humid-boundary
+pipeline:
+# Classic-NLU sidecar: tokenize, featurize and classify the intent, so the
+# NLUCommandAdapter can start nlu_trigger'd flows without an LLM call.
+- name: WhitespaceTokenizer
+- name: CountVectorsFeaturizer
+- name: LogisticRegressionClassifier
+- name: NLUCommandAdapter
+# Search-ready generator: same job as the Compact one, but its command set
+# includes `search and reply` (and drops `offtopic reply` — knowledge and
+# small talk now share one route). Recommended whenever Enterprise Search
+# is in the config.
+- name: SearchReadyLLMCommandGenerator
+  llm:
+    model_group: openai_llm
+policies:
+- name: FlowPolicy
+# The knowledge layer: answers KnowledgeAnswerCommand turns by retrieving
+# from the FAISS index built over ./docs at TRAINING time (txt files only,
+# read recursively). Corpus change => retrain.
+- name: EnterpriseSearchPolicy
+  vector_store:
+    type: faiss
+    source: ./docs
+  llm:
+    model_group: search_llm
+  embeddings:
+    model_group: openai_embeddings
+  # Every answer ends with a Sources list built from document metadata.
+  citation_enabled: true
+  # Post-generation relevancy check: if the generated answer is not backed
+  # by the retrieved documents, the turn routes to pattern_cannot_handle
+  # (utter_no_relevant_answer_found) instead of serving the answer.
+  # Refusal as configuration, not model goodwill.
+  check_relevancy: true

@@ -1,0 +1,14 @@
+# Which candidates the LLM lists is a judgement call that varies run to
+# run (sometimes card_fees_info joins the two card flows) — and the `all`
+# operator requires the exact option set. `any` pins what must hold: the
+# pattern fired and offered card flows.
+test_cases:
+  - test_case: ambiguous_card_request_triggers_clarification
+    steps:
+      - user: something's wrong with my card
+        assertions:
+          - pattern_clarification_contains:
+              operator: any
+              flow_ids:
+                - block_card
+                - replace_card

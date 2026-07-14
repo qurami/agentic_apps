@@ -1,0 +1,24 @@
+# Generative assertions: the answer text changes run to run, so instead of
+# matching strings an LLM judge scores it. `grounded` = the statements in
+# the answer are supported by the ground truth (here: the corpus sentence
+# the answer must not contradict); `relevant` = the answer addresses the
+# question. Each assertion costs judge LLM calls on top of the generation.
+test_cases:
+  - test_case: knowledge_answer_grounded_in_corpus
+    steps:
+      - user: does the current account have a monthly maintenance fee?
+        assertions:
+          - generative_response_is_grounded:
+              threshold: 0.9
+              utter_source: EnterpriseSearchPolicy
+              ground_truth: >-
+                The Lumera current account has a maintenance fee of 2.50
+                euros per month. The fee is waived in any month where the
+                average account balance stays above 5,000 euros.
+          # Relevancy is scored as the average cosine similarity between
+          # the user message and 3 question variations the judge generates
+          # from the answer — good answers score well below 1.0, so the threshold is calibrated
+          # against observed scores, not copied from the grounded one.
+          - generative_response_is_relevant:
+              threshold: 0.6
+              utter_source: EnterpriseSearchPolicy

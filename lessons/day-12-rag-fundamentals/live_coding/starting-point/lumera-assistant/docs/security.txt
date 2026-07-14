@@ -1,0 +1,17 @@
+Banca Lumera — Security and Authentication
+
+Access to the assistant and to web banking is protected by a personal
+security code. The security code is chosen by the customer and can be
+changed at any time from the app under Settings, Security.
+
+Banca Lumera will never ask for your full security code, your card PIN
+or a one-time password by phone, email or text message. Any message
+asking for these codes is a fraud attempt and should be reported.
+
+If you suspect fraud on your account, block your cards immediately from
+the app or by calling the 24-hour security line at 800 555 200, then
+report the incident at any branch.
+
+After three failed authentication attempts the account access is locked
+for 24 hours. It can be unlocked earlier by visiting a branch with a
+valid identity document.

@@ -1,0 +1,24 @@
+flows:
+  check_balance:
+    name: check account balance
+    description: >
+      Look up the current balance of one of the customer's Banca Lumera
+      accounts. Does not list past transactions.
+    persisted_slots:
+      - account_type
+    nlu_trigger:
+      - intent:
+          name: check_balance
+          confidence_threshold: 0.75
+    steps:
+      - collect: account_type
+        description: "the account to check: checking or savings"
+      - action: action_fetch_balance
+        next:
+          - if: slots.balance_fetch_ok
+            then: show_balance
+          - else:
+              - action: utter_balance_service_down
+                next: END
+      - action: utter_current_balance
+        id: show_balance

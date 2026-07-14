@@ -1,0 +1,44 @@
+# The transfer happy path, with the core-banking call stubbed: this file
+# tests the conversation logic, not the backend — it must pass with the
+# mock API down.
+#
+# This case uses the step-script format (user turns + expected responses
+# and slots) rather than per-turn assertions: it freezes the whole
+# journey, and only checks our own literal responses — never rephrased
+# pattern text.
+stub_custom_actions:
+  action_execute_transfer:
+    events:
+      - event: slot
+        name: transfer_id
+        value: TRF-0042
+      - event: slot
+        name: transfer_ok
+        value: true
+    responses: []
+  # Stub runs must stub EVERY custom action the case touches — including
+  # validate_transfer_amount, which the collect machinery calls
+  # automatically. An empty stub means "validation passes".
+  validate_transfer_amount:
+    events: []
+    responses: []
+
+test_cases:
+  - test_case: transfer_happy_path_completes
+    fixtures:
+      - authenticated_user
+    steps:
+      - user: I want to send money to Marco Bianchi
+      - slot_was_set:
+          - recipient_name: Marco Bianchi
+      - utter: utter_ask_recipient_iban
+      - user: the IBAN is IT60X0542811101000000123456
+      - utter: utter_ask_transfer_amount
+      - user: "100"
+      - slot_was_set:
+          - transfer_amount: 100.0
+      - utter: utter_ask_transfer_confirmed
+      - user: yes, go ahead
+      - utter: utter_transfer_done
+      - user: no thanks
+      - utter: utter_transfer_wrap_up

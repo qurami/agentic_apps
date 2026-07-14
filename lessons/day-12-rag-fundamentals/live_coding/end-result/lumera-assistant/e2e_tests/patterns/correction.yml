@@ -1,0 +1,36 @@
+# Correction at the recap: the amount must end at the corrected value.
+# validate_transfer_amount is stubbed empty ("validation passes") — stub
+# runs must stub every custom action the case touches.
+stub_custom_actions:
+  validate_transfer_amount:
+    events: []
+    responses: []
+
+test_cases:
+  - test_case: correction_at_the_recap_updates_the_amount
+    fixtures:
+      - authenticated_user
+    steps:
+      - user: I want to send money to Marco Bianchi
+        assertions:
+          - flow_started:
+              operator: all
+              flow_ids:
+                - transfer_money
+      - user: IT60X0542811101000000123456
+        assertions:
+          - bot_uttered:
+              utter_name: utter_ask_transfer_amount
+      - user: I want to send 200
+        assertions:
+          - bot_uttered:
+              utter_name: utter_ask_transfer_confirmed
+      - user: actually, make it 150
+        assertions:
+          - flow_started:
+              operator: all
+              flow_ids:
+                - pattern_correction
+          - slot_was_set:
+              - name: transfer_amount
+                value: 150.0

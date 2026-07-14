@@ -1,0 +1,2 @@
+rasa-pro[nlu]>=3.17
+requests

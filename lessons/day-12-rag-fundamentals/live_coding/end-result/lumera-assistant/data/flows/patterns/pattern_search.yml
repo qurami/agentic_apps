@@ -1,0 +1,10 @@
+# Same override-by-name mechanic as pattern_chitchat: the shipped default
+# answers utter_no_knowledge_base ("I don't have access to a knowledge
+# base"). Overriding it with action_trigger_search is what actually turns
+# the EnterpriseSearchPolicy on for knowledge turns.
+flows:
+  pattern_search:
+    description: Flow for handling knowledge-based questions
+    name: pattern search
+    steps:
+      - action: action_trigger_search

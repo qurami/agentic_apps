@@ -1,0 +1,9 @@
+test_cases:
+  - test_case: off_topic_message_goes_to_pattern_search
+    steps:
+      - user: do you like pizza?
+        assertions:
+          - flow_started:
+              operator: all
+              flow_ids:
+                - pattern_search

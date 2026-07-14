@@ -1,0 +1,38 @@
+flows:
+  block_card:
+    name: block a card
+    description: >
+      Immediately block one of the customer's Banca Lumera cards that is lost,
+      stolen or compromised, so it can no longer be used. Does not order a
+      replacement card.
+    steps:
+      - call: authenticate_user
+      - noop: true
+        next:
+          - if: not slots.authenticated
+            then:
+              - action: utter_auth_failed
+                next: END
+          - else: ask_card
+      - collect: card_type
+        id: ask_card
+        utter: utter_ask_card_to_block
+        description: "the card to block: debit or credit"
+      - collect: block_confirmed
+        description: whether the customer confirms blocking the card
+        ask_before_filling: true
+        next:
+          - if: slots.block_confirmed
+            then:
+              - action: action_block_card
+                next:
+                  - if: slots.card_block_ok
+                    then: card_blocked
+                  - else:
+                      - action: utter_card_block_failed
+                        next: END
+          - else:
+              - action: utter_card_block_declined
+                next: END
+      - action: utter_card_blocked
+        id: card_blocked

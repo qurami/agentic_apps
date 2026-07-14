@@ -1,0 +1,44 @@
+version: "3.1"
+
+slots:
+  replace_confirmed:
+    type: bool
+    mappings:
+      - type: from_llm
+  card_replace_ok:
+    type: bool
+    mappings:
+      - type: controlled
+  card_replacement_eta:
+    type: text
+    mappings:
+      - type: controlled
+
+responses:
+  utter_ask_card_to_replace:
+    - text: "Which card should I order a replacement for?"
+      buttons:
+        - title: "Debit card"
+          payload: "/SetSlots(card_type=debit)"
+        - title: "Credit card"
+          payload: "/SetSlots(card_type=credit)"
+
+  utter_ask_replace_confirmed:
+    - text: "I'll order a replacement {card_type} card, delivered to your registered address. Shall I proceed?"
+      buttons:
+        - title: "Yes, order it"
+          payload: "/SetSlots(replace_confirmed=true)"
+        - title: "No, don't"
+          payload: "/SetSlots(replace_confirmed=false)"
+
+  utter_card_replacement_ordered:
+    - text: "Done — your replacement {card_type} card is on its way and should arrive within {card_replacement_eta}."
+
+  utter_card_replace_failed:
+    - text: "I couldn't reach the card system, so no replacement has been ordered. Please try again later."
+
+  utter_card_replace_declined:
+    - text: "Understood — I won't order a replacement."
+
+actions:
+  - action_replace_card

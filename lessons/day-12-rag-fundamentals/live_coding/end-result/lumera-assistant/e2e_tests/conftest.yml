@@ -1,0 +1,23 @@
+# Test configuration for the e2e suite. One file, two jobs:
+#
+# 1. Fixtures — slots pre-set right after session start, so test cases for
+#    sensitive flows can bypass the security-code challenge.
+# 2. The LLM judge that scores the generative assertions (grounded /
+#    relevant). NOTE the placement: the docs say conftest.yml lives at the
+#    project root, but the runner walks UP from the test file and stops at
+#    the FIRST conftest it finds — this file. A root conftest.yml would be
+#    shadowed by this one, so the judge block must live here, next to the
+#    fixtures. (This is the documented default judge model; Rasa recommends
+#    a different provider than the one that generates, to avoid
+#    self-preference bias — we only have an OpenAI key, caveat accepted.)
+fixtures:
+  - authenticated_user:
+      - authenticated: true
+
+llm_judge:
+  llm:
+    provider: openai
+    model: gpt-5-mini-2025-08-07
+  embeddings:
+    provider: openai
+    model: text-embedding-3-large

@@ -1,0 +1,28 @@
+flows:
+  book_appointment:
+    name: book a branch appointment
+    description: Book an in-person appointment at a Banca Lumera branch.
+    steps:
+      - collect: branch_city
+        description: the city of the branch where the customer wants the appointment
+      - collect: appointment_topic
+        description: "what the appointment is about: mortgage, investments, or account services"
+      - collect: preferred_time
+        description: the customer's preferred day and time, in their own words
+      - collect: appointment_confirmed
+        description: whether the customer confirms the recap of the appointment
+        next:
+          - if: slots.appointment_confirmed
+            then:
+              - action: action_confirm_appointment
+                next:
+                  - if: slots.booking_ok
+                    then:
+                      - action: utter_appointment_booked
+                        next: END
+                  - else:
+                      - action: utter_booking_failed
+                        next: END
+          - else:
+              - action: utter_appointment_declined
+                next: END

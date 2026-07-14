@@ -1,0 +1,41 @@
+# This file contains the different endpoints your bot can use.
+
+# Server which runs your custom actions.
+# https://rasa.com/docs/rasa-pro/concepts/custom-actions
+
+action_endpoint:
+  actions_module: "actions"
+
+# Contextual Response Rephraser: rephrases responses that carry
+# `metadata: rephrase: True` (our own responses don't — only the shipped
+# pattern responses and utter_free_chitchat_response do). Endpoints are
+# runtime configuration: changing this file needs a restart, not a retrain.
+nlg:
+  type: rephrase
+  llm:
+    model_group: openai_llm
+
+# LLM providers and models, referenced by the components in config.yml.
+# The API key is read from the environment — it never lives in this file.
+
+model_groups:
+  - id: openai_llm
+    models:
+      - provider: openai
+        model: gpt-5.1-2025-11-13
+        reasoning_effort: "none"
+        timeout: 15
+  # Answer generation for Enterprise Search — a cheaper job than command
+  # generation, so it gets a cheaper model (the documented ESP default,
+  # pinned explicitly).
+  - id: search_llm
+    models:
+      - provider: openai
+        model: gpt-5-mini-2025-08-07
+        timeout: 25
+  # Embeddings used to index ./docs at training time and to embed the
+  # user's question at runtime (the ESP default, pinned explicitly).
+  - id: openai_embeddings
+    models:
+      - provider: openai
+        model: text-embedding-3-large

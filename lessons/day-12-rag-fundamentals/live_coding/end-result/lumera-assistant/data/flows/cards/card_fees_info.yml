@@ -1,0 +1,9 @@
+flows:
+  card_fees_info:
+    name: card fees information
+    description: Explain the yearly fees of Banca Lumera payment cards.
+    steps:
+      - collect: card_type
+        description: "the card the customer asks about: debit or credit"
+      - action: utter_card_fees
+      - action: utter_card_fee_table_link

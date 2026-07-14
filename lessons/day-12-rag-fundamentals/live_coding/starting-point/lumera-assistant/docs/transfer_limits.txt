@@ -1,0 +1,18 @@
+Banca Lumera — Transfer Limits and Timing
+
+Online transfers from a Lumera current account are limited to 5,000
+euros per single transfer. Transfers above this limit must be ordered
+at a branch, where they are subject to additional verification.
+
+There is no fixed limit on the number of transfers per day, but the
+total daily amount ordered online cannot exceed 10,000 euros.
+
+Standard SEPA credit transfers are settled within one business day.
+Transfers ordered after 17:30, or on weekends and holidays, are
+processed on the next business day.
+
+SEPA instant transfers arrive within about 10 seconds, at any hour and
+on any day, and cost 1 euro per transfer. Instant transfers share the
+same 5,000 euro per-transfer limit.
+
+Transfers between two Lumera accounts are always free and immediate.

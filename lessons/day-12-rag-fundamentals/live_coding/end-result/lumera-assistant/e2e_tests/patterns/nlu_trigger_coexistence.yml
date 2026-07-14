@@ -1,0 +1,27 @@
+# Coexistence guard: a high-confidence balance message must keep starting
+# check_balance (via the nlu_trigger or the LLM — the assertion holds for
+# either routing path). The balance fetch is stubbed.
+stub_custom_actions:
+  action_fetch_balance:
+    events:
+      - event: slot
+        name: current_balance
+        value: 1250.0
+      - event: slot
+        name: balance_fetch_ok
+        value: true
+    responses: []
+
+test_cases:
+  - test_case: high_confidence_balance_message_starts_check_balance
+    steps:
+      - user: what's my balance
+        assertions:
+          - flow_started:
+              operator: all
+              flow_ids:
+                - check_balance
+      - user: checking
+        assertions:
+          - bot_uttered:
+              utter_name: utter_current_balance
